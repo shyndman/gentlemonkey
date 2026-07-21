@@ -23,7 +23,7 @@ buttonDisable:
   description: Button to disable a script.
   message: ปิดใช้งาน
 buttonDownloadThemes:
-  description: Button in Violentmonkey settings for editor.
+  description: Button in Gentlemonkey settings for editor.
   message: ''
   touched: false
 buttonEdit:
@@ -160,7 +160,7 @@ descEditorOptions:
   message: >-
     ตัวเลือกที่กำหนดเองสำหรับ CodeMirror และ addon ในวัตถุ JSON เช่น
     <code>{"indentUnit":2, "smartIndent":true}</code>
-    อย่างไรก็ตามควรระลึกไว้ว่าบางตัวเลือกอาจใช้งานไม่ได้กับ  Violentmonkey ดู<a
+    อย่างไรก็ตามควรระลึกไว้ว่าบางตัวเลือกอาจใช้งานไม่ได้กับ  Gentlemonkey ดู<a
     href="https://codemirror.net/doc/manual.html#config" target="_blank"
     rel="noopener noreferrer">รายการเต็ม</a>
 descEditorOptionsGeneric:
@@ -244,29 +244,29 @@ extDescription:
   message: ตัวจัดการ userscript แบบโอเพนซอร์สที่รองรับเบราว์เซอร์ได้หลากหลาย
 extName:
   description: Name of this extension.
-  message: Violentmonkey
+  message: Gentlemonkey
 failureReasonBlacklisted:
   description: Shown for blacklisted URLs (in the extension icon tooltip, in the popup)
-  message: ถูกห้ามในการตั้งค่าของ Violentmonkey
+  message: ถูกห้ามในการตั้งค่าของ Gentlemonkey
 failureReasonNoninjectable:
   description: >-
     Shown for URLs that cannot be processed (same places as
     failureBlacklistedUrl)
   message: >-
-    Violentmonkey ไม่สามารถเรียกใช้ userscript ในหน้านี้ได้
+    Gentlemonkey ไม่สามารถเรียกใช้ userscript ในหน้านี้ได้
 
     (ตัวอย่างที่พบบ่อย: ส่วนติดต่อผู้ใช้ของเบราว์เซอร์ ส่วนขยาย
     ถูกบล็อกผ่านการตั้งค่านโยบาย เว็บไซต์ที่เป็นเครื่องมือค้นหาใน Opera)
 failureReasonRestarted:
   description: Shown in the popup.
   message: >-
-    Violentmonkey ถูกเริ่มทำงานใหม่แล้ว กรุณาโหลดแท็บใหม่เพื่อเรียกใช้
+    Gentlemonkey ถูกเริ่มทำงานใหม่แล้ว กรุณาโหลดแท็บใหม่เพื่อเรียกใช้
     userscript
 fileInstallBlocked:
   description: Text in the installer when a local file is dropped into the browser window.
   message: >-
     มีหลายวิธีที่จะติดตั้งหรือติดตามการแก้ไขในไฟล์ในเครื่อง: <1>
-    ลากและปล่อยไฟล์ไปยังหน้าหรือป๊อปอัปของ Violentmonkey ที่เปิดอยู่
+    ลากและปล่อยไฟล์ไปยังหน้าหรือป๊อปอัปของ Gentlemonkey ที่เปิดอยู่
     ซึ่งรวมถึงหน้า/ป๊อปอัปนี้ด้วย <2> ติดตั้งเซิร์ฟเวอร์ HTTP
     บนเครื่องสำหรับไฟล์นี้แล้วเปิดผ่าน http://localhost <3> เปิด
     "อนุญาตให้เข้าถึงไฟล์ URL" ในหน้ารายละเอียดสำหรับ Violetmonkey ในหน้า
@@ -381,7 +381,7 @@ labelAutoReloadCurrentTab:
   message: ''
 labelAutoReloadCurrentTabDisabled:
   description: >-
-    Tooltip in menu after Violentmonkey is switched off if auto-reload is
+    Tooltip in menu after Gentlemonkey is switched off if auto-reload is
     disabled.
   message: ''
   touched: false
@@ -748,10 +748,10 @@ menuNewScript:
   description: Menu item to create a new script.
   message: ''
 menuScriptDisabled:
-  description: Menu item showing the status of Violentmonkey, when disabled.
+  description: Menu item showing the status of Gentlemonkey, when disabled.
   message: ''
 menuScriptEnabled:
-  description: Menu item showing the status of Violentmonkey, when enabled.
+  description: Menu item showing the status of Gentlemonkey, when enabled.
   message: ''
 msgCheckingForUpdate:
   description: Message shown when a script is being checked for updates by version numbers.
@@ -761,14 +761,14 @@ msgDateFormatInfo:
   message: ''
 msgErrorFetchingResource:
   description: >-
-    Message shown when Violentmonkey fails fetching a resource/require/icon of
+    Message shown when Gentlemonkey fails fetching a resource/require/icon of
     the script.
   message: ''
 msgErrorFetchingScript:
-  description: Message shown when Violentmonkey fails fetching a new version of the script.
+  description: Message shown when Gentlemonkey fails fetching a new version of the script.
   message: ''
 msgErrorFetchingUpdateInfo:
-  description: Message shown when Violentmonkey fails fetching version data of the script.
+  description: Message shown when Gentlemonkey fails fetching version data of the script.
   message: ''
 msgErrorLoadingData:
   description: >-
@@ -1076,6 +1076,6 @@ valueLabelValueString:
   description: '$1 is the checkbox: "Value (serialized as JSON or [x] string)"'
   message: ''
 visitWebsite:
-  description: Label for link to open Violentmonkey website.
+  description: Label for link to open Gentlemonkey website.
   message: ''
   touched: false

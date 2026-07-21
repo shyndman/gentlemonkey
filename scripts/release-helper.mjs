@@ -47,10 +47,10 @@ function getReleaseNote() {
   return `${
     process.env.PRERELEASE === 'true'
       ? `\
-**This is a beta release of Violentmonkey (also in [WebStore](\
+**This is a beta release of Gentlemonkey (also in [WebStore](\
 https://chrome.google.com/webstore/detail/violentmonkey-beta/opokoaglpekkimldnlggpoagmjegichg\
 )), use it at your own risk.**<br>\
-If you already use Violentmonkey, click \`Export to zip\` in settings before installing the beta.
+If you already use Gentlemonkey, click \`Export to zip\` in settings before installing the beta.
 
 `
       : ''

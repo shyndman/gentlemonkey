@@ -65,7 +65,7 @@ const createHtmlPage = key => new HtmlWebpackPlugin({
   ...defaultHtmlOptions,
   filename: `${key}/index.html`,
   chunks: [`${key}/index`],
-  title: 'Violentmonkey',
+  title: 'Gentlemonkey',
   scriptLoading: 'blocking', // we don't need `defer` and it breaks in some browsers, see #1632
   inject: false,
   // For GroupAssetsPlugin, inject only `index.js` into `body` to avoid FOUC

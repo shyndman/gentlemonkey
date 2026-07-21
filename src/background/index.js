@@ -4,6 +4,8 @@ import { deepCopy } from '@/common/object';
 import setClipboard from '@/common/clipboard';
 import { handleHotkeyOrMenu } from './utils/icon';
 import { addPublicCommands, commands, init } from './utils';
+import './ai/runtime';
+import './ai/settings';
 import './sync';
 import './utils/cookies';
 import './utils/notifications';

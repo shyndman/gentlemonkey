@@ -45,6 +45,13 @@
         <icon name="more" />
       </span>
     </div>
+    <AiPrompt
+      v-if="promptMode"
+      :tab-id="store.tab.id"
+      :initial-match="aiMatch"
+      @back="promptMode = false"
+      @started="onAiStarted" />
+    <template v-else>
     <div class="menu" v-if="store.injectable" v-show="store.domain">
       <div class="menu-item menu-area menu-find">
         <template v-for="(url, text, i) in findUrls" :key="url">
@@ -91,6 +98,8 @@
             failed: item.failed,
             removed: item.config.removed,
             runs: item.runs,
+            'ai-constructing': isAiConstructing(item),
+            'ai-ready': isAiReady(item),
             'extras-shown': extras === item,
             'excludes-shown': item.excludes,
           }"
@@ -98,6 +107,7 @@
           <div
             class="menu-item menu-area"
             :tabIndex
+            :aria-disabled="isAiConstructing(item) || undefined"
             @focus="focusedItem = item"
             @keydown.enter.exact.stop="onEditScript(item)"
             @keydown.space.exact.stop="onToggleScript(item)"
@@ -110,6 +120,8 @@
                  @mousedown.middle.exact.stop="onEditScript(item)">
               <sup class="syntax" v-if="item.syntax" v-text="i18n('msgSyntaxError')"/>
               <div class="ellipsis" v-text="item.name" :data-message="item.name"/>
+              <span v-if="item.ai" class="ai-state"
+                    v-text="i18n(isAiConstructing(item) ? 'aiGenerating' : 'aiReady')" />
               <a v-if="!store.failure && item.more"
                  class="tardy" tabindex="0" :title="TARDY_MATCH"
                  @click.stop="note = note === TARDY_MATCH ? '' : TARDY_MATCH">
@@ -124,19 +136,27 @@
             <div class="upd ellipsis" :title="item.upd" :data-error="item.updError"/>
           </div>
           <div class="submenu-buttons"
-               v-show="showButtons(item)">
-            <!-- Using a standard tooltip that's shown after a delay to avoid nagging the user -->
-            <div class="submenu-button" :tabIndex @click="onEditScript(item)"
-                 :title="i18n('buttonEditClickHint')">
-              <icon name="code"></icon>
-            </div>
-            <div
-              class="submenu-button"
-              :tabIndex
-              :_item.prop="item"
-              @click="showExtras">
-              <icon name="more"/>
-            </div>
+               v-show="isAiConstructing(item) || showButtons(item)">
+            <button v-if="isAiConstructing(item)"
+                    class="submenu-button ai-cancel"
+                    :title="i18n('aiCancelGeneration')"
+                    :aria-label="i18n('aiCancelGeneration')"
+                    @click.stop="onCancelAi(item)"
+                    v-text="i18n('buttonCancel')" />
+            <template v-else>
+              <!-- Using a standard tooltip that's shown after a delay to avoid nagging the user -->
+              <div class="submenu-button" :tabIndex @click="onEditScript(item)"
+                   :title="i18n('buttonEditClickHint')">
+                <icon name="code"></icon>
+              </div>
+              <div
+                class="submenu-button"
+                :tabIndex
+                :_item.prop="item"
+                @click="showExtras">
+                <icon name="more"/>
+              </div>
+            </template>
           </div>
           <div v-if="item.excludes" class="excludes-menu mb-1c mr-1c">
             <button v-for="(val, key) in item.excludes[1]" :key
@@ -189,6 +209,7 @@
     <div class="incognito"
        v-if="store.tab?.incognito"
        v-text="i18n('msgIncognitoChanges')"/>
+    </template>
     <footer class="ellipsis" ref="$footer">
       <template v-if="message">{{message}}</template>
       <a v-else-if="reloadHint" v-text="reloadHint" :tabIndex @click="reloadTab" />
@@ -224,7 +245,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref } from 'vue';
+import { computed, nextTick, onMounted, reactive, ref, watchEffect } from 'vue';
 import { VM_DOCS_INJECT_INTO, VM_DOCS_MATCHING } from '@/common/consts';
 import options from '@/common/options';
 import optionsDefaults, {
@@ -241,6 +262,9 @@ import Icon from '@/common/ui/icon';
 import SettingsPopup from '@/common/ui/settings-popup.vue';
 import { getSortCollator } from '@/common/ui/util';
 import { handleTabNavigation, isInput, kbdTypable, keyboardService } from '@/common/keyboard';
+import { AI_COMMANDS, AI_PRESENTATION_STATE } from '@/common/ai';
+import AiPrompt from '../ai/prompt.vue';
+import { aiPresentations, loadAiPresentations } from '../ai/presentations';
 import { isFullscreenPopup, store } from '../utils';
 
 let mousedownElement;
@@ -254,6 +278,7 @@ const SCRIPT_CLS = '.script';
 const RUN_AT_ORDER = ['start', 'body', 'end', 'idle'];
 const kNoCmdNames = 'noCmdNames';
 const needsReload = reactive({});
+const pendingAiScripts = reactive({});
 const collator = getSortCollator();
 const $extras = ref();
 const $footer = ref();
@@ -271,12 +296,14 @@ const focusedItem = ref();
 const message = ref();
 const note = ref();
 const topExtras = ref();
+const promptMode = ref(false);
 
 const activeLinks = computed(makeActiveLinks);
 const injectionScopes = computed(makeInjectionScopes);
 const findUrls = computed(makeFindUrls);
 const reloadHint = computed(makeReloadHint);
-const tabIndex = computed(() => extras.value ? -1 : 0);
+const aiMatch = computed(makeAiMatch);
+const tabIndex = computed(() => promptMode.value || extras.value ? -1 : 0);
 
 options.hook((changes) => {
   for (const key in optionsData) {
@@ -291,15 +318,41 @@ options.hook((changes) => {
     }
   }
 });
+watchEffect(() => {
+  for (const { scriptId } of Object.values(aiPresentations)) {
+    const script = pendingAiScripts[scriptId];
+    if (!script) continue;
+    const exists = store.scripts.some(list => list.some(item => item.props.id === scriptId));
+    if (!exists) {
+      store.scripts[0].push({
+        ...script,
+        pageUrl: store.tab.url,
+        runs: false,
+      });
+    }
+    delete pendingAiScripts[scriptId];
+  }
+});
+
 Object.assign(handlers, {
-  async UpdateScript({ update: { error, message: msg }, where: { id } } = {}) {
+  async UpdateScript({ update = {}, where: { id } = {} } = {}) {
+    if (update.meta) pendingAiScripts[id] = update;
     for (const { list } of injectionScopes.value) {
       for (const item of list) {
         if (item.id === id) {
-          item.upd = error || msg;
-          item.updError = error;
+          item.upd = update.error || update.message;
+          item.updError = update.error;
           return;
         }
+      }
+    }
+  },
+  RemoveScripts(ids = []) {
+    for (const id of ids) {
+      delete pendingAiScripts[id];
+      for (const list of store.scripts) {
+        const index = list.findIndex(item => item.props.id === id);
+        if (index >= 0) list.splice(index, 1);
       }
     }
   },
@@ -343,7 +396,7 @@ function makeInjectionScopes() {
       ? list.reduce((num, script) => num + script.config.enabled, 0)
       : numTotal;
     if (hideDisabled === 'hide' || hideDisabled === true) {
-      list = list.filter(script => script.config.enabled);
+      list = list.filter(script => script.config.enabled || aiPresentations[script.props.id]);
     }
     list = list.map(script => {
       const scriptName = getScriptName(script);
@@ -367,6 +420,7 @@ function makeInjectionScopes() {
         }`,
         excludes: null,
         cmds: cmds && Object.entries(cmds),
+        ai: aiPresentations[id],
       };
       if (upd) item.upd = null;
       if (upd && shouldUpdate) {
@@ -386,6 +440,18 @@ function makeInjectionScopes() {
     };
   }).filter(Boolean);
 }
+function makeAiMatch() {
+  const url = store.tab?.url;
+  try {
+    const parsed = new URL(url);
+    if (/^https?:$/.test(parsed.protocol)) return `${parsed.origin}/*`;
+    if (parsed.protocol === 'file:') return `${parsed.href.split(/[?#]/)[0]}*`;
+  } catch {
+    // Fall through to the domain captured by the popup initializer.
+  }
+  return store.domain ? `*://${store.domain}/*` : '';
+}
+
 function makeFindUrls() {
   const query = encodeURIComponent(store.domain);
   return {
@@ -448,8 +514,13 @@ function onOpenUrl(e) {
   e.preventDefault();
   sendCmdDirectly('TabOpen', { url: el.href }).then(close);
 }
-function onEditScript(item) {
-  sendCmdDirectly('OpenEditor', item.props.id).then(close);
+async function onEditScript(item) {
+  if (!item || isAiConstructing(item)) return;
+  if (isAiReady(item)) {
+    await sendCmdDirectly(AI_COMMANDS.MARK_VIEWED, { scriptId: item.props.id });
+  }
+  await sendCmdDirectly('OpenEditor', item.props.id);
+  close();
 }
 function onCommand(evt) {
   const { type, currentTarget: el } = evt;
@@ -468,7 +539,18 @@ function onCommand(evt) {
     }, { [kFrameId]: frameId }).then(autoClose && close);
   }
 }
+function isAiConstructing(item) {
+  return item.ai?.state === AI_PRESENTATION_STATE.CONSTRUCTING;
+}
+function isAiReady(item) {
+  return item.ai?.state === AI_PRESENTATION_STATE.READY;
+}
+function onCancelAi(item) {
+  return sendCmdDirectly(AI_COMMANDS.CANCEL, { scriptId: item.props.id });
+}
+
 function onToggleScript(item) {
+  if (isAiConstructing(item)) return;
   const data = item;
   const enabled = !data.config.enabled;
   const { id } = data.props;
@@ -486,8 +568,18 @@ function checkReload() {
     return reloadTab();
   }
 }
-function onCreateScript() {
-  sendCmdDirectly('OpenEditor').then(close);
+function onCreateScript(evt) {
+  if (evt.shiftKey) {
+    sendCmdDirectly('OpenEditor').then(close);
+  } else {
+    showSettings.value = false;
+    promptMode.value = true;
+    extras.value = topExtras.value = null;
+  }
+}
+function onAiStarted() {
+  promptMode.value = false;
+  loadAiPresentations();
 }
 async function onInjectionFailureFix() {
   // TODO: promisify options.set, resolve on storage write, await it instead of makePause
@@ -597,8 +689,13 @@ function showButtons(item) {
 }
 
 onMounted(() => {
+  loadAiPresentations();
   keyboardService.enable();
   keyboardService.register('escape', () => {
+    if (promptMode.value) {
+      promptMode.value = false;
+      return;
+    }
     const item = extras.value || topExtras.value;
     if (item) {
       extras.value = topExtras.value = null;

@@ -1,6 +1,6 @@
 {
-  "name": "violentmonkey",
-  "description": "Violentmonkey",
+  "name": "gentlemonkey",
+  "description": "Gentlemonkey",
   "version": "2.45.0",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -8,11 +8,13 @@
     "dev": "gulp dev",
     "dev:mv3": "cross-env MV3=1 gulp dev",
     "build": "cross-env NODE_ENV=production gulp build",
+    "build:xpi": "run-s build && node scripts/build-xpi.mjs",
     "build:mv3": "cross-env NODE_ENV=production MV3=1 gulp build",
     "build:selfHosted": "cross-env TARGET=selfHosted BETA=1 run-s build",
     "analyze": "cross-env RUN_ENV=analyze run-s build",
     "i18n": "gulp i18n",
     "copyI18n": "gulp copyI18n",
+    "docs:gm": "node scripts/generate-gm-api-docs.js",
     "lint": "run-s lint:js lint:yml",
     "lint:js": "eslint --ext .js,.vue . --cache",
     "lint:yml": "gulp check",
@@ -112,15 +114,18 @@
   "homepage": "https://github.com/violentmonkey/violentmonkey",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.13",
     "@usync/drive": "^0.2.3",
     "@usync/oauth2": "^0.1.7",
     "@usync/sync": "^0.1.1",
     "@violentmonkey/shortcut": "^1.4.4",
+    "ai": "^7.0.32",
     "codemirror": "^5.65.20",
     "fflate": "^0.8.3",
     "tldts": "^7.4.0",
     "vue": "^3.5.35",
-    "vueleton": "^2.0.2"
+    "vueleton": "^2.0.2",
+    "zod": "^4.4.3"
   },
   "engines": {
     "node": ">= 24"

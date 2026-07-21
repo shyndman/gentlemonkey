@@ -21,6 +21,7 @@
         <setting-check name="notifyUpdatesGlobal" :label="i18n('labelNotifyUpdatesGlobal')" />
       </div>
     </section>
+    <ai-settings/>
     <section class="mb-2c">
       <h3 v-text="i18n('labelBackupMaintenance')" :class="{bright: store.isEmpty === 1}"/>
       <vm-import></vm-import>
@@ -142,6 +143,7 @@ import LocaleGroup from '@/common/ui/locale-group';
 import SettingCheck from '@/common/ui/setting-check';
 import SettingText from '@/common/ui/setting-text';
 import SettingsPopup from '@/common/ui/settings-popup.vue';
+import AiSettings from '@/common/ai/settings.vue';
 import VmImport from './vm-import';
 import VmExport from './vm-export';
 import VmMaintenance from './vm-maintenance';

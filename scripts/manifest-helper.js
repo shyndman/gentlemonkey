@@ -47,7 +47,7 @@ function buildManifest(base) {
   }
   if (isBeta()) {
     // Do not support i18n in beta version
-    const name = 'Violentmonkey BETA';
+    const name = 'Gentlemonkey BETA';
     data.name = name;
     data[MV3 ? 'action' : 'browser_action'].default_title = name;
   }

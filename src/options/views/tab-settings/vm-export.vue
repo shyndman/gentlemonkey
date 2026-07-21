@@ -77,7 +77,7 @@ async function exportData() {
     };
     const v = withValues && values[id];
     if (v) {
-      // `values` are related to scripts by `props.id` in Violentmonkey,
+      // `values` are related to scripts by `props.id` in Gentlemonkey,
       // but by the global `props.uri` when exported.
       vmValues[uri] = v;
     }

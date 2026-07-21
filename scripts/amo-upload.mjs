@@ -10,7 +10,7 @@ const beta = isBeta();
 
 async function handleAddon() {
   const manifest = await readManifest();
-  const fileName = `violentmonkey-${version}${beta ? 'b' : ''}.xpi`;
+  const fileName = `gentlemonkey-${version}${beta ? 'b' : ''}.xpi`;
   const url = `https://github.com/violentmonkey/violentmonkey/releases/download/v${version}/${fileName}`;
 
   if (await hasAsset(fileName)) {

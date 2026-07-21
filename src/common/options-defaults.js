@@ -1,4 +1,5 @@
 import { BLACKLIST, BLACKLIST_NET, FILE_GLOB_ALL } from '@/common/consts';
+import { AI_OPTION_DEFAULTS, AI_OPTIONS_KEY } from '@/common/ai/settings';
 
 export const kAutocompleteOnTyping = 'autocompleteOnTyping';
 export const kEditAsString = 'editAsString';
@@ -33,6 +34,7 @@ export default {
   [kUpdateEnabledScriptsOnly]: true,
   [kGmCookieHttpOnly]: false,
   [kPageMenuCommands]: false,
+  [AI_OPTIONS_KEY]: AI_OPTION_DEFAULTS,
   autoUpdate: 1, // days, 0 = disable
   // ignoreGrant: false,
   lastUpdate: 0,
