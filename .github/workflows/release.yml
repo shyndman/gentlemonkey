@@ -51,16 +51,16 @@ jobs:
           # Build for release, also upload to GitHub assets
           pnpm build
           # Build one more time to make sure the output is the same
-          # mv dist $TEMP_DIR/dist && pnpm build && diff -qr dist $TEMP_DIR/dist
+          # mv .out/mv2 $TEMP_DIR/mv2 && pnpm build && diff -qr .out/mv2 $TEMP_DIR/mv2
 
       - name: Zip
         run: |
-          cd dist && zip -r ../$ASSETS_DIR/$ASSET_ZIP . && cd ..
+          cd .out/mv2 && zip -r ../../$ASSETS_DIR/$ASSET_ZIP . && cd ../..
 
           # Build for AMO unlisted, append `BETA` to version name and set update_url for FF
           # Same as `pnpm build:selfHosted` but only manifest is changed by now
           TARGET=selfHosted BETA=1 npx gulp manifest
-          cd dist && zip -r ../$TEMP_DIR/$ASSET_SELF_HOSTED_ZIP . && cd ..
+          cd .out/mv2 && zip -r ../../$TEMP_DIR/$ASSET_SELF_HOSTED_ZIP . && cd ../..
 
       - run: pnpm build:mv3
         env:
@@ -71,12 +71,12 @@ jobs:
 
       - name: Zip MV3
         run: |
-          cd dist-mv3 && zip -r ../$ASSETS_DIR/$ASSET_CWS_ZIP . && cd ..
+          cd .out/mv3 && zip -r ../../$ASSETS_DIR/$ASSET_CWS_ZIP . && cd ../..
 
           # Build for CWS beta, append `BETA` to version name
           # Same as `BETA=1 pnpm build` but only manifest is changed by now
           BETA=1 MV3=1 npx gulp manifest
-          cd dist-mv3 && zip -r ../$TEMP_DIR/$ASSET_CWS_BETA_ZIP . && cd ..
+          cd .out/mv3 && zip -r ../../$TEMP_DIR/$ASSET_CWS_BETA_ZIP . && cd ../..
 
       - name: Publish to AMO
         continue-on-error: true

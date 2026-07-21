@@ -50,14 +50,14 @@ jobs:
         continue-on-error: true
         with:
           name: 'Violentmonkey-test-webext-${{ env.GIT_DESCRIBE }}'
-          path: 'dist/*'
+          path: '.out/mv2/*'
           if-no-files-found: error
       - name: Upload MV3 zip
         uses: actions/upload-artifact@v7
         continue-on-error: true
         with:
           name: 'Violentmonkey-test-mv3-${{ env.GIT_DESCRIBE }}'
-          path: 'dist-mv3/*'
+          path: '.out/mv3/*'
           if-no-files-found: error
 
       - name: Upload to Transifex - check src

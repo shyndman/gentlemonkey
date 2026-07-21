@@ -40,7 +40,7 @@ jobs:
         run: |
           mkdir -p $ASSETS_DIR $TEMP_DIR
           pnpm build
-          cd dist && zip -r ../$ASSETS_DIR/$ASSET_ZIP . && cd ..
+          cd .out/mv2 && zip -r ../../$ASSETS_DIR/$ASSET_ZIP . && cd ../..
 
       - uses: denoland/setup-deno@v2
         with:

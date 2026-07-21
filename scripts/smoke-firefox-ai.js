@@ -5,8 +5,8 @@ const Path = require('node:path');
 const Vm = require('node:vm');
 
 const root = Path.resolve(__dirname, '..');
-const bundlePath = Path.join(root, 'dist/background/index.js');
-const manifestPath = Path.join(root, 'dist/manifest.json');
+const bundlePath = Path.join(root, '.out/mv2/background/index.js');
+const manifestPath = Path.join(root, '.out/mv2/manifest.json');
 const manifest = JSON.parse(Fs.readFileSync(manifestPath));
 const listeners = [];
 const timers = new Set();
