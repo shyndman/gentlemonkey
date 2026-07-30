@@ -471,19 +471,3 @@ footer {
   font-size: 10px;
 }
 
-@keyframes ai-ready-sparkle {
-  0%, 100% { box-shadow: inset 2px 0 0 #8b5cf6; }
-  50% { box-shadow: inset 2px 0 0 #d4af37; }
-}
-
-.ai-ready {
-  animation: ai-ready-sparkle 2.4s ease-in-out infinite;
-  background: linear-gradient(90deg, #8b5cf612, transparent 45%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ai-ready {
-    animation: none;
-    box-shadow: inset 2px 0 0 #8b5cf6;
-  }
-}

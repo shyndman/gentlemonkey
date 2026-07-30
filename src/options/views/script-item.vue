@@ -12,6 +12,10 @@
     :tabIndex
     @focus="setScriptFocus(true)"
     @blur="setScriptFocus(false)">
+    <Twinkles
+      v-if="twinkling"
+      :count="viewTable ? LIST_TWINKLE_COUNT : CARD_TWINKLE_COUNT"
+      @shown="onTwinklesShown" />
     <div class="script-icon hidden-xs">
       <a :href="url" :data-hotkey="hotkeys.edit" data-hotkey-table tabIndex="-1">
         <img :src="cache.safeIcon" :data-no-icon="cache.noIcon">
@@ -176,6 +180,10 @@ import { computed, ref, watch } from 'vue';
 import Dropdown from 'vueleton/lib/dropdown';
 import Tooltip from 'vueleton/lib/tooltip';
 import Icon from '@/common/ui/icon';
+import { sendCmdDirectly } from '@/common';
+import { AI_COMMANDS, AI_PRESENTATION_STATE } from '@/common/ai';
+import { aiPresentations } from '@/common/ai/presentations';
+import Twinkles from '@/common/ui/twinkles.vue';
 
 const props = defineProps([
   'script',
@@ -195,10 +203,16 @@ const emit = defineEmits([
   'toggle',
   'update',
 ]);
+const LIST_TWINKLE_COUNT = 28;
+const CARD_TWINKLE_COUNT = 42;
 const $root = ref();
 const canRender = ref(props.visible);
 const isEnabled = computed(() => props.script.config.enabled);
 const isRemoved = computed(() => props.script.config.removed);
+const isAiReady = computed(() => (
+  aiPresentations[props.script.props.id]?.state === AI_PRESENTATION_STATE.READY
+));
+const twinkling = ref(false);
 const showRecycle = computed(() => store.route.paths[0] === TAB_RECYCLE);
 const author = computed(() => {
   const text = props.script.meta.author;
@@ -226,6 +240,10 @@ const labelEnable = computed(() => {
 const tabIndex = computed(() => {
   return props.focused ? 0 : -1;
 });
+function onTwinklesShown() {
+  if (!isAiReady.value) return;
+  return sendCmdDirectly(AI_COMMANDS.MARK_VIEWED, { scriptId: props.script.props.id });
+}
 const updatedAt = computed(() => {
   const { props: scrProps } = props.script;
   const lastModified = !isRemoved.value && scrProps.lastUpdated || scrProps.lastModified;
@@ -291,6 +309,9 @@ watch(() => props.visible, visible => {
   // Leave it if the element is already rendered
   if (visible) canRender.value = true;
 });
+watch(isAiReady, ready => {
+  if (ready) twinkling.value = true;
+}, { immediate: true });
 
 watch(() => props.focused, (value, prevValue) => {
   const $el = $root.value;

@@ -2,7 +2,7 @@ import { sendCmdDirectly } from '@/common';
 import {
   aiPresentations,
   loadAiPresentations,
-} from '@/popup/ai/presentations';
+} from '@/common/ai/presentations';
 
 jest.mock('@/common', () => ({ sendCmdDirectly: jest.fn() }));
 

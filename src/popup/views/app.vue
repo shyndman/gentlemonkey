@@ -99,11 +99,14 @@
             removed: item.config.removed,
             runs: item.runs,
             'ai-constructing': isAiConstructing(item),
-            'ai-ready': isAiReady(item),
             'extras-shown': extras === item,
             'excludes-shown': item.excludes,
           }"
           class="script">
+          <Twinkles
+            v-if="isAiTwinkling(item)"
+            :count="POPUP_TWINKLE_COUNT"
+            @shown="onAiTwinklesShown(item)" />
           <div
             class="menu-item menu-area"
             :tabIndex
@@ -260,11 +263,12 @@ import { objectPick } from '@/common/object';
 import { EXTERNAL_LINK_PROPS, getActiveElement } from '@/common/ui';
 import Icon from '@/common/ui/icon';
 import SettingsPopup from '@/common/ui/settings-popup.vue';
+import Twinkles from '@/common/ui/twinkles.vue';
 import { getSortCollator } from '@/common/ui/util';
 import { handleTabNavigation, isInput, kbdTypable, keyboardService } from '@/common/keyboard';
 import { AI_COMMANDS, AI_PRESENTATION_STATE } from '@/common/ai';
 import AiPrompt from '../ai/prompt.vue';
-import { aiPresentations, loadAiPresentations } from '../ai/presentations';
+import { aiPresentations, loadAiPresentations } from '@/common/ai/presentations';
 import { isFullscreenPopup, store } from '../utils';
 
 let mousedownElement;
@@ -276,9 +280,11 @@ const INJECT_LEARN = IS_FIREFOX
   : '@inject-into content\n' + i18n('learnInjectionMode');
 const SCRIPT_CLS = '.script';
 const RUN_AT_ORDER = ['start', 'body', 'end', 'idle'];
+const POPUP_TWINKLE_COUNT = 28;
 const kNoCmdNames = 'noCmdNames';
 const needsReload = reactive({});
 const pendingAiScripts = reactive({});
+const twinklingAiScripts = reactive(new Set());
 const collator = getSortCollator();
 const $extras = ref();
 const $footer = ref();
@@ -516,9 +522,6 @@ function onOpenUrl(e) {
 }
 async function onEditScript(item) {
   if (!item || isAiConstructing(item)) return;
-  if (isAiReady(item)) {
-    await sendCmdDirectly(AI_COMMANDS.MARK_VIEWED, { scriptId: item.props.id });
-  }
   await sendCmdDirectly('OpenEditor', item.props.id);
   close();
 }
@@ -544,6 +547,15 @@ function isAiConstructing(item) {
 }
 function isAiReady(item) {
   return item.ai?.state === AI_PRESENTATION_STATE.READY;
+}
+function isAiTwinkling(item) {
+  return twinklingAiScripts.has(item.props.id) || isAiReady(item);
+}
+function onAiTwinklesShown(item) {
+  const { id } = item.props;
+  if (!isAiReady(item) || twinklingAiScripts.has(id)) return;
+  twinklingAiScripts.add(id);
+  return sendCmdDirectly(AI_COMMANDS.MARK_VIEWED, { scriptId: id });
 }
 function onCancelAi(item) {
   return sendCmdDirectly(AI_COMMANDS.CANCEL, { scriptId: item.props.id });

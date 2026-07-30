@@ -182,6 +182,7 @@ import Tooltip from 'vueleton/lib/tooltip';
 import { i18n, sendCmdDirectly, debounce, ensureArray, trueJoin, formatByteLength } from '@/common';
 import { INFERRED } from '@/common/consts';
 import handlers from '@/common/handlers';
+import { loadAiPresentations } from '@/common/ai/presentations';
 import options from '@/common/options';
 import hookSetting from '@/common/hook-setting';
 import { forEachKey } from '@/common/object';
@@ -868,6 +869,7 @@ Object.assign(handlers, {
 });
 
 onMounted(() => {
+  loadAiPresentations();
   // Ensure the correct UI is shown when mounted:
   // * on subsequent navigation via history back/forward;
   // * on first initialization in some weird case the scripts got loaded early.

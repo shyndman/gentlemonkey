@@ -7,8 +7,8 @@
  * returns to the normal list and starts a background-owned run pinned to that
  * tab. The run receives the tab URL and title up front. Its first model task is
  * to name the script, after which a valid, disabled placeholder appears in the
- * list. The row is non-interactive while constructing and sparkles after
- * successful completion until the user opens it in the editor.
+ * list. After successful completion, the first popup or dashboard surface that
+ * displays the script covers its item with bright, continuously moving twinkles.
  *
  * V1 generates new scripts only. During generation the model may evaluate page
  * JavaScript, take a screenshot, read/write/edit the draft script, and search

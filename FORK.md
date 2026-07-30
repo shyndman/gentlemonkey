@@ -24,7 +24,7 @@ This fork adds the following feature areas on top of upstream:
 - **Safe generation lifecycle:** drafts and completed scripts stay disabled. A named
   placeholder appears while generation is active; explicit cancellation, tab closure or
   navigation, timeout, validation failure, and provider/tool failure silently remove it.
-  Successful scripts notify the user and sparkle in the popup until opened in the editor.
+  Successful scripts notify the user, then visibly twinkle on their first appearance in either the popup or dashboard.
   Metadata, grants, and JavaScript are validated before publication; tool results are
   treated as untrusted, page-evaluation serialization is bounded, and screenshot results
   are returned only while the pinned tab remains active. Interrupted runs are cleaned up
