@@ -49,7 +49,8 @@
       v-if="promptMode"
       :tab-id="store.tab.id"
       :initial-match="aiMatch"
-      @back="promptMode = false"
+      :script="promptScript"
+      @back="onAiBack"
       @started="onAiStarted" />
     <template v-else>
     <div class="menu" v-if="store.injectable" v-show="store.domain">
@@ -124,7 +125,9 @@
               <sup class="syntax" v-if="item.syntax" v-text="i18n('msgSyntaxError')"/>
               <div class="ellipsis" v-text="item.name" :data-message="item.name"/>
               <span v-if="item.ai" class="ai-state"
-                    v-text="i18n(isAiConstructing(item) ? 'aiGenerating' : 'aiReady')" />
+                    v-text="i18n(isAiConstructing(item)
+                      ? (item.ai.edit ? 'aiUpdating' : 'aiGenerating')
+                      : 'aiReady')" />
               <a v-if="!store.failure && item.more"
                  class="tardy" tabindex="0" :title="TARDY_MATCH"
                  @click.stop="note = note === TARDY_MATCH ? '' : TARDY_MATCH">
@@ -147,6 +150,12 @@
                     @click.stop="onCancelAi(item)"
                     v-text="i18n('buttonCancel')" />
             <template v-else>
+              <div v-if="!scope.depth && !item.config.removed"
+                   class="submenu-button" :tabIndex
+                   :title="i18n('aiEditScript')"
+                   @click.stop="onAiEditScript(item)">
+                <icon name="sparkle"></icon>
+              </div>
               <!-- Using a standard tooltip that's shown after a delay to avoid nagging the user -->
               <div class="submenu-button" :tabIndex @click="onEditScript(item)"
                    :title="i18n('buttonEditClickHint')">
@@ -303,6 +312,8 @@ const message = ref();
 const note = ref();
 const topExtras = ref();
 const promptMode = ref(false);
+/** Set only in edit prompt mode: { id, name } of the script being updated. */
+const promptScript = ref(null);
 
 const activeLinks = computed(makeActiveLinks);
 const injectionScopes = computed(makeInjectionScopes);
@@ -585,12 +596,34 @@ function onCreateScript(evt) {
     sendCmdDirectly('OpenEditor').then(close);
   } else {
     showSettings.value = false;
+    promptScript.value = null;
     promptMode.value = true;
     extras.value = topExtras.value = null;
   }
 }
-function onAiStarted() {
+function onAiEditScript(item) {
+  showSettings.value = false;
+  promptScript.value = { id: item.props.id, name: item.name };
+  promptMode.value = true;
+  extras.value = topExtras.value = null;
+}
+function onAiBack() {
   promptMode.value = false;
+  promptScript.value = null;
+}
+function onAiStarted() {
+  // An edit run disables the script up front in the background; mirror that in
+  // the already-loaded popup rows so the toggle state is not stale.
+  const editedId = promptScript.value?.id;
+  if (editedId) {
+    for (const list of store.scripts) {
+      for (const script of list) {
+        if (script.props.id === editedId) script.config.enabled = 0;
+      }
+    }
+  }
+  promptMode.value = false;
+  promptScript.value = null;
   loadAiPresentations();
 }
 async function onInjectionFailureFix() {
@@ -706,6 +739,7 @@ onMounted(() => {
   keyboardService.register('escape', () => {
     if (promptMode.value) {
       promptMode.value = false;
+      promptScript.value = null;
       return;
     }
     const item = extras.value || topExtras.value;

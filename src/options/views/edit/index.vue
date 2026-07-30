@@ -46,6 +46,10 @@
       </keep-alive>
     </div>
 
+    <!-- A live AI edit run owns the draft and will overwrite the script on
+         success, so warn (without locking) anyone editing it by hand. -->
+    <p v-if="aiUpdating" class="shelf ai-updating" v-text="i18n('aiEditInProgress')"/>
+
     <p v-if="fatal" class="shelf fatal">
       <b v-text="fatal[0]"/>
       {{fatal[1]}}
@@ -180,6 +184,8 @@ import VmSettings from './settings';
 import VMSettingsUpdate from './settings-update';
 import VmValues from './values';
 import VmHelp from './help';
+import { AI_PRESENTATION_STATE } from '@/common/ai';
+import { aiPresentations, loadAiPresentations } from '@/common/ai/presentations';
 
 let CM;
 let $codeComp;
@@ -256,6 +262,9 @@ const navItems = computed(() => {
   };
 });
 const scriptName = computed(() => (store.title = getScriptName(script.value)));
+const aiUpdating = computed(() => (
+  aiPresentations[script.value.props.id]?.state === AI_PRESENTATION_STATE.CONSTRUCTING
+));
 
 watch(nav, async val => {
   await nextTick();
@@ -291,6 +300,7 @@ watch(script, onScript);
 }
 
 onMounted(() => {
+  loadAiPresentations();
   $codeComp = $code.value;
   CM = $codeComp.cm;
   toggleUnloadSentry = getUnloadSentry(null, () => CM.focus());
@@ -593,6 +603,10 @@ function setupSavePosition({ id: curWndId, tabs }) {
   }
   .fatal {
     background: firebrick;
+    color: white;
+  }
+  .ai-updating {
+    background: darkgoldenrod;
     color: white;
   }
   .frozen-note {

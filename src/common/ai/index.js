@@ -10,10 +10,21 @@
  * list. After successful completion, the first popup or dashboard surface that
  * displays the script covers its item with bright, continuously moving twinkles.
  *
- * V1 generates new scripts only. During generation the model may evaluate page
- * JavaScript, take a screenshot, read/write/edit the draft script, and search
- * build-filtered GM API documentation. Page-side effects from evaluation are an
- * accepted part of the feature. Provider configuration is OpenAI-compatible.
+ * Scripts can also be edited by the model. Each script row in the popup's
+ * matched-scripts list carries an AI-edit control that switches the popup into
+ * a prompt mode naming the target script, with Cancel and Update actions and no
+ * match field. An edit run starts a fresh conversation: no history, only the
+ * editing instructions, the user's request, and the tools. The persistent draft
+ * is seeded with the script's current source, the script is disabled while the
+ * run is live, and it stays disabled after every outcome; failure or cancel
+ * discards the draft and leaves the original code untouched. While a run
+ * targets a script, starting another prompt for it is impossible and the editor
+ * shows a warning that manual edits may be overwritten.
+ *
+ * During a run the model may evaluate page JavaScript, take a screenshot,
+ * read/write/edit the draft script, and search build-filtered GM API
+ * documentation. Page-side effects from evaluation are an accepted part of the
+ * feature. Provider configuration is OpenAI-compatible.
  *
  * Runs are independent and unlimited in number. The background, not the popup,
  * owns their lifetime. It aborts a run when explicitly cancelled or when its
@@ -31,6 +42,7 @@
 /** Commands callable only from extension-owned pages. */
 export const AI_COMMANDS = Object.freeze({
   START: 'AiStartRun',
+  START_EDIT: 'AiStartEditRun',
   CANCEL: 'AiCancelRun',
   MARK_VIEWED: 'AiMarkViewed',
   GET_PRESENTATIONS: 'AiGetPresentations',
@@ -53,6 +65,16 @@ export const AI_PRESENTATION_STATE = Object.freeze({
  * @property {number} tabId Positive browser tab id.
  * @property {string} prompt User-authored generation request.
  * @property {string} match Editable userscript @match value.
+ */
+
+/**
+ * Starts an edit run against an existing script. The draft is seeded with the
+ * script's current source; success rewrites the same script in place.
+ *
+ * @typedef {Object} AiStartEditRunRequest
+ * @property {number} tabId Positive browser tab id.
+ * @property {number} scriptId Id of the script to edit.
+ * @property {string} prompt User-authored edit request.
  */
 
 /**
@@ -86,6 +108,7 @@ export const AI_PRESENTATION_STATE = Object.freeze({
  * @property {string} runId
  * @property {number} scriptId
  * @property {'constructing'|'ready'} state
+ * @property {boolean} [edit] True when the run updates an existing script.
  */
 
 /** @typedef {AiScriptPresentation[]} AiPresentationSnapshot */

@@ -444,6 +444,9 @@ footer {
   input {
     width: 100%;
   }
+  &-target {
+    font-weight: bold;
+  }
   &-actions {
     justify-content: flex-end;
     gap: .5rem;

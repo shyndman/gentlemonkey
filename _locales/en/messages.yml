@@ -7,6 +7,24 @@ aiBaseUrl:
 aiCancelGeneration:
   description: Button that cancels an AI userscript generation run.
   message: Cancel generation
+aiEditComplete:
+  description: Notification title when an AI userscript edit succeeds.
+  message: Script updated
+aiEditCompleteText:
+  description: Notification text when an AI-edited userscript is ready.
+  message: The script was updated and remains disabled.
+aiEditInProgress:
+  description: Editor warning shown while an AI run is updating the open script.
+  message: An AI run is updating this script. Manual edits may be overwritten.
+aiEditPrompt:
+  description: Label for the change request in the popup AI edit prompt.
+  message: 'What should change?'
+aiEditScript:
+  description: Popup button that starts an AI edit of an existing script.
+  message: Edit with AI
+aiEditingScript:
+  description: Header of the popup AI edit prompt naming the target script.
+  message: 'Editing: $1'
 aiGenerate:
   description: Button that starts AI userscript generation from the popup.
   message: Generate script
@@ -40,6 +58,12 @@ aiReady:
 aiSettings:
   description: Heading for AI generation settings.
   message: AI script generation
+aiUpdate:
+  description: Button that starts an AI edit run from the popup.
+  message: Update
+aiUpdating:
+  description: Status shown for a userscript being updated by AI.
+  message: Updating…
 buttonApply:
   description: Apply button on dialog that applies changes without closing the dialog.
   message: Apply
