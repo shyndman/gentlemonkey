@@ -27,7 +27,7 @@ const success = !ERROR;
 
 if (success) {
   title = `${TARGET} Release Success: ${RELEASE_NAME}`;
-  description = `See the changelog at https://github.com/violentmonkey/violentmonkey/releases/tag/v${VERSION}.`;
+  description = `See the changelog at https://github.com/shyndman/gentlemonkey/releases/tag/v${VERSION}.`;
 } else {
   title = `${TARGET} Release Failure: ${RELEASE_NAME}`;
   description = [

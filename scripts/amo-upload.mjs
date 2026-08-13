@@ -11,7 +11,7 @@ const beta = isBeta();
 async function handleAddon() {
   const manifest = await readManifest();
   const fileName = `gentlemonkey-${version}${beta ? 'b' : ''}.xpi`;
-  const url = `https://github.com/violentmonkey/violentmonkey/releases/download/v${version}/${fileName}`;
+  const url = `https://github.com/shyndman/gentlemonkey/releases/download/v${version}/${fileName}`;
 
   if (await hasAsset(fileName)) {
     // Throw an error so `updates.json` won't be updated in the next step.
@@ -22,7 +22,7 @@ async function handleAddon() {
     process.env.TEMP_DIR,
     Math.random().toString(36).slice(2, 8).toString(),
   );
-  const releaseUrl = `https://github.com/violentmonkey/violentmonkey/releases/tag/v${version}`;
+  const releaseUrl = `https://github.com/shyndman/gentlemonkey/releases/tag/v${version}`;
   await signAddon({
     apiKey: process.env.AMO_KEY,
     apiSecret: process.env.AMO_SECRET,
